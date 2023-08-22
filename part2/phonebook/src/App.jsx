@@ -1,5 +1,36 @@
 import { useState } from 'react'
 
+const Filter = ({ filter, handleChange }) => {
+  return (
+    <div>filter list: <input value={filter} onChange={handleChange} /></div>
+  )
+}
+
+const Form = ({ handleSubmit, newName, newNumber, handleName, handleNumber }) => {
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>name: <input value={newName} onChange={handleName} /></div>
+      <div>number: <input value={newNumber} onChange={handleNumber} /></div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  )
+}
+
+const Person = ({ p }) => {
+  return <div>{p.name} {p.number}</div>;
+}
+
+const Persons = ({ persons, filter }) => {
+  return (
+    persons.map((p) => {
+      if (filter && !p.name.toLowerCase().includes(filter.toLowerCase())) return; 
+      else return <Person key={p.id} p={p} />;
+    })
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -28,27 +59,24 @@ const App = () => {
     if (persons.find((x) => x.name === newName)) {
       alert(`${newName} is already added to phonebook`);
     } else {
-      setPersons(persons.concat({name: newName, number: newNumber}));
+      setPersons(persons.concat({name: newName, number: newNumber, id: persons[persons.length-1].id+1}));
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>filter list: <input value={filter} onChange={handleFilterInput} /></div>
+      <Filter filter={filter} handleChange={handleFilterInput} />
       <h2>Add a new entry</h2>
-      <form onSubmit={handleSubmit}>
-        <div>name: <input value={newName} onChange={handleNameInput} /></div>
-        <div>number: <input value={newNumber} onChange={handleNumberInput} /></div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <Form
+        newName={newName}
+        newNumber={newNumber}
+        handleName={handleNameInput}
+        handleNumber={handleNumberInput}
+        handleSubmit={handleSubmit}
+      />
       <h2>Numbers</h2>
-      {persons.map((p) => {
-        if (filter && !p.name.toLowerCase().includes(filter.toLowerCase())) return; 
-        else return <div key={p.name}>{p.name} {p.number}</div>;
-      })}
+      <Persons persons={persons} filter={filter} />
     </div>
   )
 }
