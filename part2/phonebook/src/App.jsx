@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import personService from './services/persons'
 
 const Filter = ({ filter, handleChange }) => {
@@ -21,14 +20,19 @@ const Form = ({ handleSubmit, newName, newNumber, handleName, handleNumber }) =>
 }
 
 const Person = ({ p }) => {
-  return <div>{p.name} {p.number}</div>;
+  return <span>{p.name} {p.number} </span>;
 }
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, handleClick }) => {
   return (
     persons.map((p) => {
       if (filter && !p.name.toLowerCase().includes(filter.toLowerCase())) return; 
-      else return <Person key={p.id} p={p} />;
+      else return (
+        <div key={p.id}>
+          <Person p={p}></Person>
+          <button onClick={() => handleClick(p.id)}>delete</button>
+        </div>
+      )
     })
   )
 }
@@ -39,11 +43,11 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  const handleNameInput = (e) => {
+  const handleNameInput = e => {
     setNewName(e.target.value);
   }
 
-  const handleNumberInput = (e) => {
+  const handleNumberInput = e => {
     setNewNumber(e.target.value);
   }
 
@@ -51,10 +55,15 @@ const App = () => {
     setFilter(e.target.value);
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    if (persons.find((x) => x.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+    const existingPerson = persons.find((x) => x.name === newName)
+    if (existingPerson) {
+      if (window.confirm(`${newName} is already added to phonebook. Replace info?`)) {
+        const updateEntry = {...existingPerson, number: newNumber}
+        personService.update(existingPerson.id, updateEntry)
+        setPersons(persons.map(p => p.id === existingPerson.id ? updateEntry : p))
+      }
     } else {
       const newEntry = {name: newName, number: newNumber}
       personService.create(newEntry).then(entry => {
@@ -62,6 +71,14 @@ const App = () => {
         setPersons([...persons, entry]);
       })
     }
+  }
+
+  const handleDelete = id => {
+    const name = persons.find(p => p.id === id).name
+    if (window.confirm(`Delete ${name}?`)) {
+      personService.del(id)
+      setPersons(persons.filter(p => p.id !== id))
+    } 
   }
 
   useEffect(() => {
@@ -81,7 +98,7 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filter} />
+      <Persons persons={persons} filter={filter} handleClick={handleDelete} />
     </div>
   )
 }

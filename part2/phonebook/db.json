@@ -22,28 +22,13 @@
     },
     {
       "name": "pouyan",
-      "number": "1234",
-      "id": 6
-    },
-    {
-      "name": "tim",
-      "number": "00000",
-      "id": 7
-    },
-    {
-      "name": "tyler",
-      "number": "1",
-      "id": 8
+      "number": "4000",
+      "id": 5
     },
     {
       "name": "gabe",
       "number": "1337",
-      "id": 9
-    },
-    {
-      "name": "example",
-      "number": "99",
-      "id": 10
+      "id": 6
     }
   ]
 }
