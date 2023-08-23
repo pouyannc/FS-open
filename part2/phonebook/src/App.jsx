@@ -1,6 +1,36 @@
 import { useState, useEffect } from 'react';
 import personService from './services/persons'
 
+const AddedMessage = ({ showAddedMessage, addedName }) => {
+  const styles = {
+    color: 'green',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 8,
+    background: 'lightgrey'
+  }
+
+  return (
+    showAddedMessage && <h4 style={styles}>Added {addedName}</h4>
+  )
+}
+
+const ErrorMessage = ({ showError, person }) => {
+  const styles = {
+    color: 'red',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 8,
+    background: 'lightgrey'
+  }
+
+  return (
+    showError && <h4 style={styles}>Information of {person} has already been removed from server</h4>
+  )
+}
+
 const Filter = ({ filter, handleChange }) => {
   return (
     <div>filter list: <input value={filter} onChange={handleChange} /></div>
@@ -42,6 +72,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [showAddedMessage, setShowAddedMessage] = useState(false)
+  const [showError, setShowError] = useState(false)
 
   const handleNameInput = e => {
     setNewName(e.target.value);
@@ -61,7 +93,10 @@ const App = () => {
     if (existingPerson) {
       if (window.confirm(`${newName} is already added to phonebook. Replace info?`)) {
         const updateEntry = {...existingPerson, number: newNumber}
-        personService.update(existingPerson.id, updateEntry)
+        personService.update(existingPerson.id, updateEntry).catch(() => {
+          setShowError(true)
+          setTimeout(() => setShowError(false), 4000)
+        })
         setPersons(persons.map(p => p.id === existingPerson.id ? updateEntry : p))
       }
     } else {
@@ -70,6 +105,8 @@ const App = () => {
         console.log(entry);
         setPersons([...persons, entry]);
       })
+      setShowAddedMessage(true);
+      setTimeout(() => setShowAddedMessage(false), 4000);
     }
   }
 
@@ -88,6 +125,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <AddedMessage showAddedMessage={showAddedMessage} addedName={newName} />
+      <ErrorMessage showError={showError}/>
       <Filter filter={filter} handleChange={handleFilterInput} />
       <h2>Add a new entry</h2>
       <Form

@@ -19,7 +19,7 @@ const del = (id) => {
 }
 
 const update = (id, newObject) => {
-  axios
+  return axios
     .put(`${baseUrl}/${id}`, newObject)
     .then(res => res.data)
 }
