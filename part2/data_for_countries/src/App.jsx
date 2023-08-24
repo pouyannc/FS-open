@@ -25,9 +25,9 @@ const Country = ({ country, weather }) => {
   )
 }
 
-const Countries = ({ countries, handleClick, showCountry, weather }) => {
+const Countries = ({ countries, handleClick, weather }) => {
   if (countries && countries.length === 0) return <div>Too many matches, specify another filter</div>
-  else if (countries && showCountry) {
+  else if (countries && countries.length === 1) {
     return <Country country={countries[0]} weather={weather} />
   }
 
@@ -56,7 +56,6 @@ const Weather = ({ country, weather }) => {
 const App = () => {
   const [searchInput, setSearchInput] = useState('');
   const [countries, setCountries] = useState(null);
-  const [showCountry, setShowCountry] = useState(false);
   const [weather, setWeather] = useState(null);
 
   const handleSearchChange = (e) => {
@@ -68,7 +67,6 @@ const App = () => {
     setCountries(countries.filter((country) => {
       return country.name.common === countryName.trim()
     }));
-    setShowCountry(true);
   }
 
   useEffect(() => {
@@ -86,23 +84,18 @@ const App = () => {
   }, [searchInput])
 
   useEffect(() => {
-    if (countries && countries.length === 1) setShowCountry(true);
-    else setShowCountry(false);
-  }, [countries])
-
-  useEffect(() => {
-    if(showCountry) {
+    if(countries && countries.length === 1) {
       const api_key = import.meta.env.VITE_SOME_KEY
       axios
         .get(`https://api.openweathermap.org/data/2.5/forecast?q=${countries[0].name.common}&units=metric&appid=${api_key}`)
         .then(res => {setWeather(res.data.list[0])})
     }
-  }, [showCountry])
+  }, [countries])
 
   return (
     <div>
       <Search input={searchInput} handleChange={handleSearchChange} />
-      <Countries countries={countries} handleClick={handleShowClick} showCountry={showCountry} weather={weather} />
+      <Countries countries={countries} handleClick={handleShowClick} weather={weather} />
     </div>
   )
 }
