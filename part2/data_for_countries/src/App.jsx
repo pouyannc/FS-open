@@ -47,8 +47,11 @@ const Countries = ({ countries, handleClick, weather }) => {
 const Weather = ({ country, weather }) => {
   return (
     <div>
-      <h2>{`Weather in ${country.name.common}`}</h2>
-      <div>Temperature: {weather.main.temp}</div>
+      <h2>{`Weather in ${country.capital[0]}`}</h2>
+      <div>Temperature: {weather.main.temp} Celsius</div>
+      <img src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt='' />
+      <div>{weather.weather[0].description}</div>
+      <div>Wind: {weather.wind.speed} m/s</div>
     </div>
   )
 }
@@ -87,7 +90,7 @@ const App = () => {
     if(countries && countries.length === 1) {
       const api_key = import.meta.env.VITE_SOME_KEY
       axios
-        .get(`https://api.openweathermap.org/data/2.5/forecast?q=${countries[0].name.common}&units=metric&appid=${api_key}`)
+        .get(`https://api.openweathermap.org/data/2.5/forecast?q=${countries[0].capital[0]}&units=metric&appid=${api_key}`)
         .then(res => {setWeather(res.data.list[0])})
     }
   }, [countries])
